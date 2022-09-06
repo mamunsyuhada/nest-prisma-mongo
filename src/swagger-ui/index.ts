@@ -8,9 +8,7 @@ export const swaggerConfig = new DocumentBuilder()
 
 // adding custom options
 export const customOptions: SwaggerCustomOptions = {
-  swaggerOptions: {
-    persistAuthorization: true,
-  },
+  swaggerOptions: { persistAuthorization: true },
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'Nest Prisma MongoDB',
   customfavIcon: 'https://www.prisma.io/images/favicon-32x32.png',
