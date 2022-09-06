@@ -5,33 +5,50 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { HttpAdapterHost } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
 import { GlobalConfig } from './helper/config/global.config';
 
+export interface ErrorResponse {
+  statusCode: number;
+  message: string;
+  error: HttpException;
+  appVersion: string;
+}
+
 @Catch()
-export class AllExceptionsFilter implements ExceptionFilter {
-  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+export class HttpExceptionFilter implements ExceptionFilter {
+  constructor(private readonly config: ConfigService) {
+    this.config = config;
+  }
 
-  catch(exception: unknown, host: ArgumentsHost): void {
-    // In certain situations `httpAdapter` might not be available in the
-    // constructor method, thus we should resolve it here.
-    const { httpAdapter } = this.httpAdapterHost;
-
-    const ctx = host.switchToHttp();
-
+  catch(exception: unknown, host: ArgumentsHost) {
     const httpStatus =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const { appVersion } = GlobalConfig;
-    const responseBody = {
-      statusCode: httpStatus,
-      timestamp: new Date().toISOString(),
-      path: httpAdapter.getRequestUrl(ctx.getRequest()),
-      appVersion,
+    let errorResponse: any = {};
+    const internalError = {
+      code: httpStatus,
+      message: 'Internal server error',
     };
+    if (this.config.get<string>('NODE_ENV') === 'prod' && httpStatus == 500) {
+      errorResponse = internalError;
+    } else {
+      errorResponse = !(exception instanceof HttpException)
+        ? internalError
+        : exception['response'];
+    }
 
-    httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+
+    const { appVersion } = GlobalConfig;
+    delete errorResponse['error'];
+    return response.status(httpStatus).json({
+      ...errorResponse,
+      appVersion,
+    });
   }
 }
