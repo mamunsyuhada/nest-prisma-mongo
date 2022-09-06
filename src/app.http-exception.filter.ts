@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
@@ -18,6 +19,7 @@ export interface ErrorResponse {
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+  // private readonly logger = new Logger(HttpExceptionFilter.name);
   constructor(private readonly config: ConfigService) {
     this.config = config;
   }
