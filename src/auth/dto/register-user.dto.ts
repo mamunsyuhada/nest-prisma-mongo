@@ -1,7 +1,16 @@
 import { ApiProperty, ApiResponseOptions, PickType } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsEmail } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsEmail,
+  IsUUID,
+} from 'class-validator';
 
-export class RegisterUserRequestDto {
+export class RequestRegisterUserDto {
+  @IsUUID()
+  @IsOptional()
+  userId: string;
   // Validates for a non-empty string
   @ApiProperty()
   @IsString()
@@ -21,7 +30,7 @@ export class RegisterUserRequestDto {
   password: string;
 }
 
-export class RegisterUserResponseDto extends PickType(RegisterUserRequestDto, [
+export class ResponseRegisterUserDto extends PickType(RequestRegisterUserDto, [
   'email',
   'name',
 ]) {}
@@ -31,13 +40,13 @@ class SuccessResponse {
     this.data = data;
   }
   @ApiProperty()
-  data: RegisterUserResponseDto;
+  data: ResponseRegisterUserDto;
 
   @ApiProperty()
   statusCode: number;
 }
 
-export const RegisterUserSuccessResponse: ApiResponseOptions = {
+export const ResponseRegisterUserSuccess: ApiResponseOptions = {
   description: 'Register User',
   type: SuccessResponse,
 };
