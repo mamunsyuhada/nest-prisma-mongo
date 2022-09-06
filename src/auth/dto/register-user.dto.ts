@@ -36,9 +36,6 @@ export class ResponseRegisterUserDto extends PickType(RequestRegisterUserDto, [
 ]) {}
 
 class SuccessResponse {
-  constructor(data: any) {
-    this.data = data;
-  }
   @ApiProperty()
   data: ResponseRegisterUserDto;
 
