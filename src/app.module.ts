@@ -5,7 +5,5 @@ import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [PrismaModule, HealthModule, AuthModule],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}
